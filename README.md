@@ -1,2 +1,2 @@
 # Cipher6
-Cipher tookit
+Cipher toolkit
