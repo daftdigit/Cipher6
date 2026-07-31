@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIPHER // encrypt</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#050609">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cipher">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<style>
+  @import url('https://cdnjs.cloudflare.com/ajax/libs/jetbrains-mono/2.304/css/jetbrains-mono.min.css');
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&display=swap');
+
+  :root{
+    /* ---- NEON (default) ---- */
+    --ink:#050609;
+    --panel:#0c0f16;
+    --panel-2:#10141d;
+    --line: rgba(0,255,242,0.14);
+    --line-strong: rgba(0,255,242,0.32);
+    --text:#c9f6ef;
+    --text-dim:#5c7a80;
+    --accent:#00fff2;
+    --accent-dim: rgba(0,255,242,0.12);
+    --accent2:#ff2e88;
+    --accent2-dim: rgba(255,46,136,0.14);
+    --accent-contrast:#031a17;
+    --amber:#ffb545;
+    --red:#ff3d5e;
+    --scanline: rgba(0,255,242,0.025);
+    --glow1: rgba(255,46,136,0.10);
+    --glow2: rgba(0,255,242,0.09);
+    --glow3: rgba(157,78,255,0.07);
+    --font-head:'Orbitron', sans-serif;
+    --font-ui:'JetBrains Mono', monospace;
+    --btn-clip: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    --ui-clip: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    --panel-border-w: 1px;
+    --letter-head: .04em;
+    --radius: 0px;
+  }
+
+  /* ---- TERMINAL (hacker) ---- */
+  body[data-theme="terminal"]{
+    --ink:#000502;
+    --panel:#020c05;
+    --panel-2:#04150a;
+    --line: rgba(51,255,102,0.22);
+    --line-strong: rgba(51,255,102,0.45);
+    --text:#a6ffc1;
+    --text-dim:#2f6b45;
+    --accent:#33ff66;
+    --accent-dim: rgba(51,255,102,0.12);
+    --accent2:#baff5e;
+    --accent2-dim: rgba(186,255,94,0.12);
+    --accent-contrast:#001a08;
+    --amber:#ffcc00;
+    --red:#ff4444;
+    --scanline: rgba(51,255,102,0.04);
+    --glow1: rgba(51,255,102,0.06);
+    --glow2: rgba(51,255,102,0.05);
+    --glow3: rgba(0,0,0,0);
+    --font-head:'Share Tech Mono', monospace;
+    --font-ui:'JetBrains Mono', monospace;
+    --btn-clip: none;
+    --ui-clip: none;
+    --panel-border-w: 1px;
+    --letter-head: .18em;
+    --radius: 0px;
+  }
+
+  /* ---- GLITCH CYBERPUNK ---- */
+  body[data-theme="glitch"]{
+    --ink:#08060c;
+    --panel:#120e1a;
+    --panel-2:#1a1424;
+    --line: rgba(255,0,120,0.28);
+    --line-strong: rgba(0,240,255,0.45);
+    --text:#ece7f5;
+    --text-dim:#71698a;
+    --accent:#ff003c;
+    --accent-dim: rgba(255,0,60,0.14);
+    --accent2:#00f0ff;
+    --accent2-dim: rgba(0,240,255,0.14);
+    --accent-contrast:#1a0008;
+    --amber:#f9f002;
+    --red:#ff003c;
+    --scanline: rgba(255,255,255,0.035);
+    --glow1: rgba(255,0,60,0.12);
+    --glow2: rgba(0,240,255,0.10);
+    --glow3: rgba(249,240,2,0.05);
+    --font-head:'Orbitron', sans-serif;
+    --font-ui:'JetBrains Mono', monospace;
+    --btn-clip: polygon(0 0, 94% 0, 100% 30%, 100% 100%, 6% 100%, 0 70%);
+    --ui-clip: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    --panel-border-w: 1px;
+    --letter-head: .05em;
+    --radius: 0px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      repeating-linear-gradient(0deg, var(--scanline) 0px, var(--scanline) 1px, transparent 1px, transparent 3px),
+      radial-gradient(ellipse 1000px 600px at 10% -10%, var(--glow1), transparent 55%),
+      radial-gradient(ellipse 900px 700px at 100% 0%, var(--glow2), transparent 55%),
+      radial-gradient(ellipse 800px 500px at 50% 100%, var(--glow3), transparent 60%),
+      var(--ink);
+    color:var(--text);
+    font-family:var(--font-ui);
+    min-height:100vh;
+    padding:48px 20px 80px;
+    transition: background-color .25s ease, color .25s ease;
+  }
+
+  .wrap{max-width:920px;margin:0 auto;}
+
+  /* ---- theme switcher ---- */
+  .theme-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:26px 0 34px;
+    flex-wrap:wrap;
+  }
+  .theme-label, .row-label{
+    font-size:11px;
+    letter-spacing:.15em;
+    color:var(--text-dim);
+    margin-right:2px;
+    white-space:nowrap;
+  }
+  .theme-btn{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    padding:7px 14px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    color:var(--text-dim);
+    cursor:pointer;
+    transition:.15s ease;
+  }
+  .theme-btn:hover{color:var(--text);}
+  .theme-btn.active{
+    color:var(--accent);
+    border-color:var(--line-strong);
+    background:var(--accent-dim);
+  }
+  .theme-btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+  /* ---- cipher type switcher ---- */
+  .cipher-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:14px;
+    flex-wrap:wrap;
+  }
+  .pill-group{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .pill{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:.06em;
+    padding:7px 13px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    color:var(--text-dim);
+    cursor:pointer;
+    transition:.15s ease;
+  }
+  .pill:hover{color:var(--text);}
+  .pill.active{
+    color:var(--accent);
+    border-color:var(--line-strong);
+    background:var(--accent-dim);
+  }
+  .pill:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+  .sec-badge{
+    font-size:10px;
+    letter-spacing:.12em;
+    padding:5px 9px;
+    border-radius:var(--radius);
+    font-weight:700;
+  }
+  .sec-badge.secure{ color:var(--accent); background:var(--accent-dim); border:1px solid var(--line-strong); }
+  .sec-badge.weak{ color:var(--red); background:color-mix(in srgb, var(--red) 14%, transparent); border:1px solid color-mix(in srgb, var(--red) 40%, transparent); }
+
+  /* ---- header ---- */
+  header{margin-bottom:36px; position:relative;}
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:.2em;
+    color:var(--accent2);
+    text-transform:uppercase;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:16px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:7px;height:7px;
+    background:var(--accent2);
+    box-shadow:0 0 10px var(--accent2), 0 0 20px var(--accent2);
+    animation: blink 1.6s steps(1) infinite;
+  }
+  @keyframes blink{ 0%,49%{opacity:1;} 50%,100%{opacity:.2;} }
+
+  h1{
+    font-family:var(--font-head);
+    font-size:clamp(26px,5vw,46px);
+    margin:0 0 12px;
+    font-weight:900;
+    letter-spacing:var(--letter-head);
+    color:var(--text);
+    text-shadow:
+      0 0 6px color-mix(in srgb, var(--accent) 60%, transparent),
+      0 0 22px color-mix(in srgb, var(--accent) 35%, transparent);
+    display:inline-block;
+  }
+  body[data-theme="terminal"] h1::after{
+    content:'_';
+    color:var(--accent);
+    animation: blink 1s steps(1) infinite;
+  }
+  body[data-theme="glitch"] h1{
+    position:relative;
+    text-shadow:
+      0 0 6px color-mix(in srgb, var(--accent) 50%, transparent),
+      0 0 20px color-mix(in srgb, var(--accent2) 30%, transparent);
+    animation: glitchFlicker 6s infinite steps(1);
+  }
+  body[data-theme="glitch"] h1::before,
+  body[data-theme="glitch"] h1::after{
+    content: attr(data-text);
+    position:absolute;
+    left:0; top:0;
+    width:100%; height:100%;
+    background:var(--ink);
+    overflow:hidden;
+  }
+  body[data-theme="glitch"] h1::before{
+    color:var(--accent2);
+    clip-path: inset(0 0 88% 0);
+    animation: glitchTop 3.2s infinite linear alternate-reverse;
+  }
+  body[data-theme="glitch"] h1::after{
+    color:var(--accent);
+    clip-path: inset(72% 0 0 0);
+    animation: glitchBottom 2.6s infinite linear alternate-reverse;
+  }
+  @keyframes glitchTop{
+    0%{clip-path: inset(0 0 88% 0); transform:translate(0,0);}
+    10%{clip-path: inset(10% 0 74% 0); transform:translate(-3px,0);}
+    20%{clip-path: inset(40% 0 40% 0); transform:translate(3px,0);}
+    30%{clip-path: inset(5% 0 80% 0); transform:translate(-2px,0);}
+    40%{clip-path: inset(60% 0 20% 0); transform:translate(2px,0);}
+    100%{clip-path: inset(0 0 88% 0); transform:translate(0,0);}
+  }
+  @keyframes glitchBottom{
+    0%{clip-path: inset(72% 0 0 0); transform:translate(0,0);}
+    15%{clip-path: inset(50% 0 30% 0); transform:translate(3px,0);}
+    30%{clip-path: inset(80% 0 5% 0); transform:translate(-3px,0);}
+    45%{clip-path: inset(65% 0 15% 0); transform:translate(2px,0);}
+    100%{clip-path: inset(72% 0 0 0); transform:translate(0,0);}
+  }
+  @keyframes glitchFlicker{
+    0%,93%,100%{ opacity:1; }
+    94%{ opacity:.6; }
+    95%{ opacity:1; }
+    96%{ opacity:.4; }
+    97%{ opacity:1; }
+  }
+
+  header p{
+    color:var(--text-dim);
+    font-size:14px;
+    max-width:560px;
+    line-height:1.6;
+    margin:0;
+  }
+
+  .noise-strip{
+    font-size:11px;
+    letter-spacing:.08em;
+    color: color-mix(in srgb, var(--accent) 55%, transparent);
+    white-space:nowrap;
+    overflow:hidden;
+    height:16px;
+    margin:24px 0 28px;
+    user-select:none;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+  }
+  body[data-theme="glitch"] .noise-strip{
+    animation: rgbJitter 4s infinite steps(1);
+  }
+  @keyframes rgbJitter{
+    0%,90%,100%{ text-shadow:none; }
+    91%{ text-shadow: -2px 0 var(--accent), 2px 0 var(--accent2); }
+    93%{ text-shadow: 2px 0 var(--accent), -2px 0 var(--accent2); }
+    95%{ text-shadow:none; }
+  }
+
+  /* ---- mode toggle ---- */
+  .mode-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .toggle{
+    display:inline-flex;
+    background:var(--panel);
+    border:1px solid var(--line);
+    padding:3px;
+    gap:2px;
+    clip-path: var(--ui-clip);
+    border-radius:var(--radius);
+  }
+  .toggle button{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:.08em;
+    padding:9px 20px;
+    border:none;
+    background:transparent;
+    color:var(--text-dim);
+    cursor:pointer;
+    transition: all .15s ease;
+    border-radius:calc(var(--radius) * 0.7);
+  }
+  .toggle button.active{
+    background:var(--accent-dim);
+    color:var(--accent);
+    text-shadow:0 0 8px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+  body[data-theme="glitch"] .toggle button.active{
+    text-shadow: -1px 0 var(--accent2), 1px 0 var(--accent);
+  }
+  .toggle button:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+  .algo-tag{
+    font-size:11px;
+    color:var(--text-dim);
+    letter-spacing:.05em;
+    border:1px solid var(--line);
+    padding:6px 10px;
+    border-radius:var(--radius);
+  }
+  .algo-tag b{color:var(--accent);font-weight:500;}
+
+  /* ---- panel ---- */
+  .panel{
+    background:var(--panel);
+    border:var(--panel-border-w) solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    margin-bottom:18px;
+    position:relative;
+  }
+  .panel::before{
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:1px;
+    background:linear-gradient(90deg, var(--accent), transparent 40%, var(--accent2) 100%);
+    opacity:.6;
+  }
+  .panel-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 16px;
+    border-bottom:1px solid var(--line);
+    background:var(--panel-2);
+  }
+  .panel-head label{
+    font-size:11px;
+    letter-spacing:.15em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+  }
+  .head-actions{display:flex; align-items:center; gap:8px;}
+  .char-count{
+    font-size:11px;
+    color:var(--text-dim);
+  }
+  textarea{
+    width:100%;
+    min-height:140px;
+    background:transparent;
+    border:none;
+    resize:vertical;
+    color:var(--text);
+    font-family:'JetBrains Mono', monospace;
+    font-size:14px;
+    line-height:1.6;
+    padding:16px;
+    outline:none;
+  }
+  textarea::placeholder{color:var(--text-dim); opacity:.6;}
+  textarea[readonly]{color:var(--accent); text-shadow:0 0 6px color-mix(in srgb, var(--accent) 25%, transparent);}
+  body[data-theme="glitch"] textarea[readonly]{
+    text-shadow: -1px 0 var(--accent2), 1px 0 var(--accent);
+  }
+
+  .mini-btn{
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--text-dim);
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:.05em;
+    padding:5px 10px;
+    cursor:pointer;
+    transition:.15s ease;
+    border-radius:var(--radius);
+  }
+  .mini-btn:hover{border-color:var(--accent); color:var(--accent); box-shadow:0 0 8px color-mix(in srgb, var(--accent) 25%, transparent);}
+  .mini-btn.danger:hover{border-color:var(--red); color:var(--red); box-shadow:0 0 8px color-mix(in srgb, var(--red) 25%, transparent);}
+
+  /* ---- password / key row ---- */
+  .pass-row{
+    display:flex;
+    gap:12px;
+    align-items:stretch;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .pass-field{
+    flex:1 1 260px;
+    position:relative;
+  }
+  .pass-field input{
+    width:100%;
+    background:var(--panel);
+    border:var(--panel-border-w) solid var(--line);
+    border-radius:var(--radius);
+    color:var(--text);
+    font-family:'JetBrains Mono', monospace;
+    font-size:14px;
+    padding:14px 44px 14px 16px;
+    outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .pass-field input:focus{border-color:var(--accent); box-shadow:0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent), 0 0 14px color-mix(in srgb, var(--accent) 15%, transparent);}
+  .pass-field button{
+    position:absolute;
+    right:8px;top:50%;transform:translateY(-50%);
+    background:transparent;border:none;
+    color:var(--text-dim);
+    cursor:pointer;
+    font-size:11px;
+    letter-spacing:.05em;
+    font-family:'JetBrains Mono', monospace;
+    padding:6px;
+  }
+  .pass-field button:hover{color:var(--accent);}
+  .no-key-note{
+    flex:1 1 260px;
+    display:none;
+    align-items:center;
+    font-size:12.5px;
+    color:var(--text-dim);
+    border:1px dashed var(--line);
+    border-radius:var(--radius);
+    padding:0 16px;
+  }
+
+  .run-btn{
+    flex:0 0 auto;
+    background:var(--accent);
+    color:var(--accent-contrast);
+    border:none;
+    padding:0 30px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:.06em;
+    cursor:pointer;
+    transition: transform .1s ease, background .15s ease, box-shadow .15s ease;
+    clip-path: var(--btn-clip);
+    border-radius:var(--radius);
+    box-shadow:0 0 18px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+  body[data-theme="glitch"] .run-btn{
+    box-shadow: -2px 0 0 var(--accent2), 2px 0 0 var(--accent);
+  }
+  .run-btn:hover{filter:brightness(1.1); box-shadow:0 0 26px color-mix(in srgb, var(--accent) 50%, transparent);}
+  .run-btn:active{transform:scale(.97);}
+  .run-btn:disabled{background:#2a2f3a; color:#6a7480; cursor:not-allowed; box-shadow:none;}
+
+  .key-hint{
+    font-size:11.5px;
+    color:var(--text-dim);
+    margin:0 0 14px 2px;
+  }
+
+  .strength{
+    font-size:11px;
+    margin-top:8px;
+    color:var(--text-dim);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .strength-bar{
+    height:4px;
+    flex:1;
+    max-width:120px;
+    background:var(--line);
+    overflow:hidden;
+    border-radius:var(--radius);
+  }
+  .strength-bar > div{height:100%; width:0%; transition: width .2s ease, background .2s ease;}
+
+  /* ---- status ---- */
+  .status{
+    font-size:12.5px;
+    padding:12px 16px;
+    margin-bottom:18px;
+    display:none;
+    align-items:center;
+    gap:8px;
+    line-height:1.5;
+    border-left:3px solid transparent;
+    border-radius:var(--radius);
+  }
+  .status.show{display:flex;}
+  .status.ok{background:var(--accent-dim); color:var(--accent); border-left-color:var(--accent);}
+  .status.err{background:color-mix(in srgb, var(--red) 12%, transparent); color:var(--red); border-left-color:var(--red);}
+  .status.warn{background:color-mix(in srgb, var(--amber) 12%, transparent); color:var(--amber); border-left-color:var(--amber);}
+
+  footer{
+    margin-top:30px;
+    font-size:12.5px;
+    color:var(--text-dim);
+    line-height:1.7;
+    border-top:1px solid var(--line);
+    padding-top:20px;
+  }
+  footer b{color:var(--accent); font-weight:500;}
+
+  @media (max-width:600px){
+    .pass-row{flex-direction:column;}
+    .run-btn{padding:14px; width:100%; clip-path:none;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body data-theme="neon">
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">multi-cipher toolkit :: client-side only</div>
+    <h1 data-text="CIPHER">CIPHER</h1>
+    <p>Encrypt and decrypt text right in this tab. Nothing is sent anywhere — everything runs in your browser.</p>
+  </header>
+
+  <div class="noise-strip" id="noiseStrip"></div>
+
+  <div class="cipher-row">
+    <span class="row-label">CIPHER:</span>
+    <div class="pill-group" id="cipherGroup">
+      <button class="pill active" data-cipher="aes">AES-256</button>
+      <button class="pill" data-cipher="vigenere">VIGENÈRE</button>
+      <button class="pill" data-cipher="caesar">CAESAR</button>
+      <button class="pill" data-cipher="xor">XOR</button>
+      <button class="pill" data-cipher="rot13">ROT13</button>
+      <button class="pill" data-cipher="base64">BASE64</button>
+    </div>
+    <span class="sec-badge secure" id="secBadge">SECURE</span>
+  </div>
+
+  <div class="mode-row">
+    <div class="toggle" role="tablist" aria-label="Mode">
+      <button id="encBtn" class="active" role="tab" aria-selected="true">ENCRYPT</button>
+      <button id="decBtn" role="tab" aria-selected="false">DECRYPT</button>
+    </div>
+    <div class="algo-tag" id="algoTag">key derivation: <b>PBKDF2</b> · 210,000 rounds</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <label id="inputLabel">Plaintext</label>
+      <span class="char-count" id="inCount">0 chars</span>
+    </div>
+    <textarea id="inputText" placeholder="Type or paste the message you want to protect…"></textarea>
+  </div>
+
+  <div class="pass-row">
+    <div class="pass-field" id="passField">
+      <input id="password" type="password" placeholder="Password" autocomplete="off">
+      <button id="togglePass" type="button" aria-label="Show password">SHOW</button>
+    </div>
+    <div class="no-key-note" id="noKeyNote">No key needed for this cipher.</div>
+    <button class="run-btn" id="runBtn">ENCRYPT →</button>
+  </div>
+  <div class="key-hint" id="keyHint"></div>
+  <div class="strength" id="strengthRow" style="display:none;">
+    <span>strength</span>
+    <div class="strength-bar"><div id="strengthFill"></div></div>
+    <span id="strengthLabel"></span>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <label id="outputLabel">Ciphertext</label>
+      <div class="head-actions">
+        <button class="mini-btn" id="copyBtn">COPY</button>
+        <button class="mini-btn danger" id="clearBtn">CLEAR ALL</button>
+      </div>
+    </div>
+    <textarea id="outputText" placeholder="Output will appear here…" readonly></textarea>
+  </div>
+
+  <div class="theme-row">
+    <span class="theme-label">THEME:</span>
+    <button class="theme-btn active" data-theme-btn="neon">NEON</button>
+    <button class="theme-btn" data-theme-btn="terminal">TERMINAL</button>
+    <button class="theme-btn" data-theme-btn="glitch">GLITCH</button>
+  </div>
+
+  <footer id="footerText">
+    <b>How it works —</b> your password runs through PBKDF2 (210,000 rounds, SHA-256) with a random salt to derive an AES-256 key. The message is sealed with AES-GCM using a random IV. Salt, IV, and ciphertext are packed together and shown as base64 — that whole block is what you share. Anyone decrypting it needs the exact password; there's no recovery if it's lost, and this tool keeps no copy of it. <b>Clear All</b> wipes the key field and both text panels in one click.
+  </footer>
+
+</div>
+
+<script>
+  const els = {
+    body: document.body,
+    themeBtns: document.querySelectorAll('.theme-btn'),
+    cipherBtns: document.querySelectorAll('.pill'),
+    secBadge: document.getElementById('secBadge'),
+    algoTag: document.getElementById('algoTag'),
+    encBtn: document.getElementById('encBtn'),
+    decBtn: document.getElementById('decBtn'),
+    inputText: document.getElementById('inputText'),
+    outputText: document.getElementById('outputText'),
+    inputLabel: document.getElementById('inputLabel'),
+    outputLabel: document.getElementById('outputLabel'),
+    inCount: document.getElementById('inCount'),
+    passField: document.getElementById('passField'),
+    password: document.getElementById('password'),
+    togglePass: document.getElementById('togglePass'),
+    noKeyNote: document.getElementById('noKeyNote'),
+    keyHint: document.getElementById('keyHint'),
+    runBtn: document.getElementById('runBtn'),
+    copyBtn: document.getElementById('copyBtn'),
+    clearBtn: document.getElementById('clearBtn'),
+    status: document.getElementById('status'),
+    strengthRow: document.getElementById('strengthRow'),
+    strengthFill: document.getElementById('strengthFill'),
+    strengthLabel: document.getElementById('strengthLabel'),
+    noiseStrip: document.getElementById('noiseStrip'),
+    footerText: document.getElementById('footerText'),
+  };
+
+  let mode = 'encrypt';
+  let cipherType = 'aes';
+
+  const CIPHERS = {
+    aes: {
+      label:'AES-256', secure:true,
+      keyPlaceholder:'Password',
+      hint:'A strong, unique password. Longer is stronger — this feeds a 210,000-round key derivation.',
+      tag: 'key derivation: <b>PBKDF2</b> · 210,000 rounds',
+      footer: '<b>How it works —</b> your password runs through PBKDF2 (210,000 rounds, SHA-256) with a random salt to derive an AES-256 key. The message is sealed with AES-GCM using a random IV. Salt, IV, and ciphertext are packed together and shown as base64 — that whole block is what you share. Anyone decrypting it needs the exact password; there\'s no recovery if it\'s lost, and this tool keeps no copy of it.',
+      needsKey:true
+    },
+    vigenere: {
+      label:'Vigenère', secure:false,
+      keyPlaceholder:'Keyword (letters)',
+      hint:'A keyword of letters, e.g. "SHADOW". Non-letters in your message pass through untouched.',
+      tag: 'classic <b>polyalphabetic</b> substitution · 16th century',
+      footer: '<b>How it works —</b> each letter of your message is shifted by the corresponding letter of the keyword, repeating the keyword as needed. It\'s a genuine historical cipher, but it\'s breakable with frequency analysis in seconds by modern tools — treat it as a puzzle, not a lock.',
+      needsKey:true
+    },
+    caesar: {
+      label:'Caesar', secure:false,
+      keyPlaceholder:'Shift amount (1–25) or any word',
+      hint:'Enter a number 1–25 for the shift, or any word — its letters will be turned into a shift for you.',
+      tag: 'classic <b>shift cipher</b> · every letter moves N places',
+      footer: '<b>How it works —</b> every letter is shifted the same fixed number of places through the alphabet. There are only 25 possible shifts, so this offers essentially no real security — it\'s here for fun and history, not for protecting anything sensitive.',
+      needsKey:true
+    },
+    xor: {
+      label:'XOR', secure:false,
+      keyPlaceholder:'Key (any text)',
+      hint:'Any text works as the key. The same key must be used to decrypt.',
+      tag: 'repeating-key <b>byte XOR</b> · output shown as base64',
+      footer: '<b>How it works —</b> each byte of your message is XORed with a repeating key, and the result is shown as base64. XOR with a short, reused key is not secure against real attackers — it\'s a classic building block, not a finished cipher.',
+      needsKey:true
+    },
+    rot13: {
+      label:'ROT13', secure:false,
+      keyPlaceholder:'', hint:'',
+      tag: 'fixed <b>13-shift</b> · encrypting again decrypts it',
+      footer: '<b>How it works —</b> ROT13 shifts every letter 13 places — since the alphabet has 26 letters, applying it twice returns the original text. It\'s a novelty used for obscuring spoilers, not encryption.',
+      needsKey:false
+    },
+    base64: {
+      label:'Base64', secure:false,
+      keyPlaceholder:'', hint:'',
+      tag: '<b>encoding</b>, not encryption · fully reversible by anyone',
+      footer: '<b>How it works —</b> Base64 just re-represents your text as a different set of characters — anyone can decode it instantly with no key at all. It\'s useful for passing text through systems that don\'t like special characters, not for keeping anything private.',
+      needsKey:false
+    }
+  };
+
+  // ---- theme switcher ----
+  els.themeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const t = btn.dataset.themeBtn;
+      els.body.setAttribute('data-theme', t);
+      els.themeBtns.forEach(b => b.classList.toggle('active', b === btn));
+    });
+  });
+
+  // ---- cipher type switcher ----
+  els.cipherBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      setCipher(btn.dataset.cipher);
+    });
+  });
+
+  function setCipher(next){
+    cipherType = next;
+    const cfg = CIPHERS[cipherType];
+    els.cipherBtns.forEach(b => b.classList.toggle('active', b.dataset.cipher === cipherType));
+
+    els.secBadge.textContent = cfg.secure ? 'SECURE' : 'WEAK — FOR FUN';
+    els.secBadge.className = 'sec-badge ' + (cfg.secure ? 'secure' : 'weak');
+    els.algoTag.innerHTML = cfg.tag;
+    els.footerText.innerHTML = cfg.footer;
+
+    if(cfg.needsKey){
+      els.passField.style.display = 'block';
+      els.noKeyNote.style.display = 'none';
+      els.password.placeholder = cfg.keyPlaceholder;
+      els.keyHint.textContent = cfg.hint;
+      els.keyHint.style.display = 'block';
+    } else {
+      els.passField.style.display = 'none';
+      els.noKeyNote.style.display = 'flex';
+      els.keyHint.style.display = 'none';
+    }
+
+    els.strengthRow.style.display = (cipherType === 'aes' && mode === 'encrypt') ? 'flex' : 'none';
+    hideStatus();
+  }
+
+  // ---- signature: ambient decoding noise strip ----
+  const noiseChars = 'ABCDEF0123456789';
+  function randomNoise(len){
+    let s = '';
+    for(let i=0;i<len;i++) s += noiseChars[Math.floor(Math.random()*noiseChars.length)];
+    return s.match(/.{1,4}/g).join(' ');
+  }
+  function tickNoise(){
+    els.noiseStrip.textContent = randomNoise(220);
+  }
+  tickNoise();
+  setInterval(tickNoise, 900);
+
+  // ---- mode switching ----
+  function setMode(next){
+    mode = next;
+    const isEnc = mode === 'encrypt';
+    els.encBtn.classList.toggle('active', isEnc);
+    els.decBtn.classList.toggle('active', !isEnc);
+    els.encBtn.setAttribute('aria-selected', isEnc);
+    els.decBtn.setAttribute('aria-selected', !isEnc);
+    els.inputLabel.textContent = isEnc ? 'Plaintext' : 'Ciphertext';
+    els.outputLabel.textContent = isEnc ? 'Ciphertext' : 'Plaintext';
+    els.inputText.placeholder = isEnc
+      ? 'Type or paste the message you want to protect…'
+      : 'Paste the encrypted text here…';
+    els.runBtn.textContent = isEnc ? 'ENCRYPT →' : 'DECRYPT →';
+    els.strengthRow.style.display = (cipherType === 'aes' && isEnc) ? 'flex' : 'none';
+    els.inputText.value = '';
+    els.outputText.value = '';
+    els.inCount.textContent = '0 chars';
+    hideStatus();
+  }
+  els.encBtn.addEventListener('click', () => setMode('encrypt'));
+  els.decBtn.addEventListener('click', () => setMode('decrypt'));
+
+  els.inputText.addEventListener('input', () => {
+    els.inCount.textContent = els.inputText.value.length + ' chars';
+  });
+
+  els.togglePass.addEventListener('click', () => {
+    const show = els.password.type === 'password';
+    els.password.type = show ? 'text' : 'password';
+    els.togglePass.textContent = show ? 'HIDE' : 'SHOW';
+  });
+
+  // ---- password strength (AES only, rough heuristic, local only) ----
+  els.password.addEventListener('input', () => {
+    if(cipherType !== 'aes') return;
+    const v = els.password.value;
+    let score = 0;
+    if(v.length >= 8) score++;
+    if(v.length >= 14) score++;
+    if(/[a-z]/.test(v) && /[A-Z]/.test(v)) score++;
+    if(/\d/.test(v)) score++;
+    if(/[^A-Za-z0-9]/.test(v)) score++;
+    const pct = [0,20,40,60,80,100][score];
+    const colors = ['var(--red)','var(--red)','var(--amber)','var(--amber)','var(--accent)','var(--accent)'];
+    const labels = ['','weak','weak','fair','strong','strong'];
+    els.strengthFill.style.width = v ? pct + '%' : '0%';
+    els.strengthFill.style.background = colors[score];
+    els.strengthLabel.textContent = v ? labels[score] : '';
+  });
+
+  function showStatus(kind, msg){
+    els.status.className = 'status show ' + kind;
+    els.status.textContent = msg;
+  }
+  function hideStatus(){
+    els.status.className = 'status';
+  }
+
+  // ---- shared byte helpers ----
+  function bufToB64(buf){
+    return btoa(String.fromCharCode(...new Uint8Array(buf)));
+  }
+  function b64ToBuf(b64){
+    const bin = atob(b64);
+    const arr = new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) arr[i] = bin.charCodeAt(i);
+    return arr.buffer;
+  }
+
+  // ---- AES-256-GCM ----
+  async function deriveKey(password, salt){
+    const enc = new TextEncoder();
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+      { name:'PBKDF2', salt, iterations:210000, hash:'SHA-256' },
+      keyMaterial,
+      { name:'AES-GCM', length:256 },
+      false,
+      ['encrypt','decrypt']
+    );
+  }
+  async function aesEncrypt(plaintext, password){
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveKey(password, salt);
+    const enc = new TextEncoder();
+    const ciphertext = await crypto.subtle.encrypt({ name:'AES-GCM', iv }, key, enc.encode(plaintext));
+    const packed = new Uint8Array(16 + 12 + ciphertext.byteLength);
+    packed.set(salt, 0);
+    packed.set(iv, 16);
+    packed.set(new Uint8Array(ciphertext), 28);
+    return bufToB64(packed.buffer);
+  }
+  async function aesDecrypt(b64, password){
+    const packed = new Uint8Array(b64ToBuf(b64));
+    if(packed.length < 29) throw new Error('That doesn\'t look like a valid encrypted block.');
+    const salt = packed.slice(0,16);
+    const iv = packed.slice(16,28);
+    const ciphertext = packed.slice(28);
+    const key = await deriveKey(password, salt);
+    const dec = await crypto.subtle.decrypt({ name:'AES-GCM', iv }, key, ciphertext);
+    return new TextDecoder().decode(dec);
+  }
+
+  // ---- Caesar ----
+  function caesarShiftChar(ch, shift){
+    const code = ch.charCodeAt(0);
+    if(code>=65 && code<=90) return String.fromCharCode(((code-65+shift)%26+26)%26+65);
+    if(code>=97 && code<=122) return String.fromCharCode(((code-97+shift)%26+26)%26+97);
+    return ch;
+  }
+  function caesarShiftText(text, shift){
+    return text.split('').map(c => caesarShiftChar(c, shift)).join('');
+  }
+  function parseCaesarShift(keyStr){
+    const trimmed = keyStr.trim();
+    if(!trimmed) throw new Error('Enter a shift number or a word first.');
+    if(/^-?\d+$/.test(trimmed)) return ((parseInt(trimmed,10) % 26) + 26) % 26;
+    let sum = 0;
+    for(const c of trimmed) sum += c.charCodeAt(0);
+    const s = sum % 26;
+    return s === 0 ? 1 : s;
+  }
+
+  // ---- Vigenère ----
+  function vigenereShiftChar(ch, keyCh, decrypt){
+    const code = ch.charCodeAt(0);
+    const isUpper = code>=65 && code<=90;
+    const isLower = code>=97 && code<=122;
+    if(!isUpper && !isLower) return ch;
+    const base = isUpper ? 65 : 97;
+    const k = keyCh.toUpperCase().charCodeAt(0) - 65;
+    const shift = decrypt ? -k : k;
+    return String.fromCharCode(((code-base+shift)%26+26)%26+base);
+  }
+  function vigenereProcess(text, key, decrypt){
+    const cleanKey = key.replace(/[^a-zA-Z]/g,'');
+    if(!cleanKey) throw new Error('Key must contain at least one letter.');
+    let ki = 0, out = '';
+    for(const ch of text){
+      if(/[a-zA-Z]/.test(ch)){
+        out += vigenereShiftChar(ch, cleanKey[ki % cleanKey.length], decrypt);
+        ki++;
+      } else out += ch;
+    }
+    return out;
+  }
+
+  // ---- XOR ----
+  function xorBytes(bytes, keyBytes){
+    const out = new Uint8Array(bytes.length);
+    for(let i=0;i<bytes.length;i++) out[i] = bytes[i] ^ keyBytes[i % keyBytes.length];
+    return out;
+  }
+  function xorEncrypt(text, key){
+    const enc = new TextEncoder();
+    const out = xorBytes(enc.encode(text), enc.encode(key));
+    return bufToB64(out.buffer);
+  }
+  function xorDecrypt(b64, key){
+    const bytes = new Uint8Array(b64ToBuf(b64.trim()));
+    const out = xorBytes(bytes, new TextEncoder().encode(key));
+    return new TextDecoder().decode(out);
+  }
+
+  // ---- ROT13 / Base64 ----
+  function rot13(text){ return caesarShiftText(text, 13); }
+  function base64Encode(text){ return bufToB64(new TextEncoder().encode(text).buffer); }
+  function base64Decode(b64){ return new TextDecoder().decode(new Uint8Array(b64ToBuf(b64.trim()))); }
+
+  // ---- decode-reveal animation for output ----
+  function revealText(finalText){
+    const len = finalText.length;
+    const steps = 14;
+    let frame = 0;
+    els.outputText.value = '';
+    const interval = setInterval(() => {
+      frame++;
+      const revealCount = Math.floor((frame/steps) * len);
+      let out = '';
+      for(let i=0;i<len;i++){
+        if(i < revealCount || finalText[i] === '\n' || finalText[i] === ' '){
+          out += finalText[i];
+        } else {
+          out += noiseChars[Math.floor(Math.random()*noiseChars.length)];
+        }
+      }
+      els.outputText.value = out;
+      if(frame >= steps){
+        els.outputText.value = finalText;
+        clearInterval(interval);
+      }
+    }, 28);
+  }
+
+  els.runBtn.addEventListener('click', async () => {
+    const text = els.inputText.value;
+    const key = els.password.value;
+    const cfg = CIPHERS[cipherType];
+    hideStatus();
+
+    if(!text.trim()){
+      showStatus('warn', `Enter some ${mode === 'encrypt' ? 'text' : 'ciphertext'} first.`);
+      return;
+    }
+    if(cfg.needsKey && !key){
+      showStatus('warn', 'A key is required for this cipher.');
+      return;
+    }
+
+    els.runBtn.disabled = true;
+    const originalLabel = els.runBtn.textContent;
+    els.runBtn.textContent = mode === 'encrypt' ? 'ENCRYPTING…' : 'DECRYPTING…';
+
+    try {
+      let result;
+      if(cipherType === 'aes'){
+        result = mode === 'encrypt' ? await aesEncrypt(text, key) : await aesDecrypt(text.trim(), key);
+      } else if(cipherType === 'vigenere'){
+        result = vigenereProcess(text, key, mode === 'decrypt');
+      } else if(cipherType === 'caesar'){
+        const shift = parseCaesarShift(key);
+        result = caesarShiftText(text, mode === 'encrypt' ? shift : -shift);
+      } else if(cipherType === 'xor'){
+        result = mode === 'encrypt' ? xorEncrypt(text, key) : xorDecrypt(text, key);
+      } else if(cipherType === 'rot13'){
+        result = rot13(text);
+      } else if(cipherType === 'base64'){
+        result = mode === 'encrypt' ? base64Encode(text) : base64Decode(text);
+      }
+      revealText(result);
+      const okMsg = mode === 'encrypt'
+        ? (cfg.secure ? 'Encrypted. Copy the block below — you\'ll need this exact password to open it again.' : 'Encrypted. Remember: ' + cfg.label + ' is not secure — anyone motivated can break it.')
+        : 'Decrypted successfully.';
+      showStatus(cfg.secure ? 'ok' : (mode === 'encrypt' ? 'warn' : 'ok'), okMsg);
+    } catch (e) {
+      els.outputText.value = '';
+      if(mode === 'decrypt'){
+        showStatus('err', 'Could not decrypt — wrong key, or the input isn\'t a valid ' + cfg.label + ' block. (' + e.message + ')');
+      } else {
+        showStatus('err', 'Something went wrong: ' + e.message);
+      }
+    } finally {
+      els.runBtn.disabled = false;
+      els.runBtn.textContent = originalLabel;
+    }
+  });
+
+  els.copyBtn.addEventListener('click', async () => {
+    if(!els.outputText.value) return;
+    try {
+      await navigator.clipboard.writeText(els.outputText.value);
+      const orig = els.copyBtn.textContent;
+      els.copyBtn.textContent = 'COPIED';
+      setTimeout(() => els.copyBtn.textContent = orig, 1200);
+    } catch(e){
+      els.outputText.select();
+      document.execCommand('copy');
+    }
+  });
+
+  els.clearBtn.addEventListener('click', () => {
+    els.inputText.value = '';
+    els.outputText.value = '';
+    els.password.value = '';
+    els.inCount.textContent = '0 chars';
+    els.strengthFill.style.width = '0%';
+    els.strengthLabel.textContent = '';
+    hideStatus();
+    const orig = els.clearBtn.textContent;
+    els.clearBtn.textContent = 'CLEARED';
+    setTimeout(() => els.clearBtn.textContent = orig, 1000);
+  });
+
+  // init
+  setCipher('aes');
+
+  // ---- PWA: register service worker so the app installs and works offline ----
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {
+        /* fine to fail silently, e.g. when opened via file:// */
+      });
+    });
+  }
+</script>
+</body>
+</html>
